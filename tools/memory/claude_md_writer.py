@@ -16,6 +16,13 @@ from tools.memory.models import SessionSummary
 
 logger = logging.getLogger(__name__)
 
+try:
+    from agent.codebase_analyzer import CodebaseAnalyzer
+    CODEBASE_ANALYZER_AVAILABLE = True
+except ImportError:
+    CODEBASE_ANALYZER_AVAILABLE = False
+    CodebaseAnalyzer = None
+
 
 DEFAULT_CLAUDE_md_TEMPLATE = """# 项目上下文
 
@@ -397,3 +404,65 @@ class ClaudeMDWriter:
         ])
         
         return info
+    
+    def analyze_and_update_structure(self, project_path: Path) -> Optional[str]:
+        """Analyze project structure and update CLAUDE.md.
+        
+        Uses CodebaseAnalyzer to automatically detect project languages,
+        frameworks, and structure, then updates the project_structure
+        section in CLAUDE.md.
+        
+        Args:
+            project_path: Project root path.
+        
+        Returns:
+            Updated project structure content or None if update failed.
+        """
+        if not CODEBASE_ANALYZER_AVAILABLE:
+            logger.warning("CodebaseAnalyzer not available")
+            return None
+        
+        try:
+            analyzer = CodebaseAnalyzer(str(project_path))
+            structure_content = analyzer.format_for_claude_md()
+            
+            existing_content, exists = self.read_claude_md(project_path)
+            
+            if not exists:
+                return None
+            
+            lines = existing_content.split("\n")
+            
+            section_start = -1
+            section_end = -1
+            section_name = "project_structure"
+            
+            for i, line in enumerate(lines):
+                if re.match(r"^## 项目结构$", line, re.IGNORECASE):
+                    section_start = i
+                elif section_start >= 0 and section_end < 0 and line.startswith("## "):
+                    section_end = i
+                    break
+            
+            if section_start < 0:
+                return None
+            
+            if section_end < 0:
+                section_end = len(lines)
+            
+            new_lines = lines[:section_start + 1]
+            new_lines.append(structure_content)
+            new_lines.append("")
+            new_lines.extend(lines[section_end:])
+            
+            new_content = "\n".join(new_lines)
+            
+            claude_md_path = project_path / "CLAUDE.md"
+            claude_md_path.write_text(new_content, encoding="utf-8")
+            logger.info(f"Updated CLAUDE.md project structure at {claude_md_path}")
+            
+            return structure_content
+            
+        except Exception as e:
+            logger.error(f"Failed to analyze and update structure: {e}")
+            return None

@@ -58,6 +58,9 @@ _HERMES_CORE_TOOLS = [
     "execute_code", "delegate_task",
     # Cronjob management
     "cronjob",
+    # Git workflow operations
+    "git_status", "git_branch_list", "git_branch_create", "git_branch_delete",
+    "git_commit", "git_log", "git_diff",
     # Cross-platform messaging (gated on gateway running via check_fn)
     "send_message",
     # Home Assistant smart home control (gated on HASS_TOKEN via check_fn)
@@ -232,6 +235,15 @@ TOOLSETS = {
 
     # "honcho" toolset removed — Honcho is now a memory provider plugin.
     # Tools are injected via MemoryManager, not the toolset system.
+
+    "git_workflow": {
+        "description": "Git workflow operations: branch management, commits, status inspection, and history",
+        "tools": [
+            "git_status", "git_branch_list", "git_branch_create", "git_branch_delete",
+            "git_commit", "git_log", "git_diff",
+        ],
+        "includes": []
+    },
 
     "homeassistant": {
         "description": "Home Assistant smart home control and monitoring",

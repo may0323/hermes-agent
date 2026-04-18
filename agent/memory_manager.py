@@ -268,6 +268,28 @@ class MemoryManager:
 
     # -- Lifecycle hooks -----------------------------------------------------
 
+    def on_session_start(self, session_id: str, **kwargs) -> None:
+        """Notify all providers of a new session start.
+
+        Called before the first turn of a session. Use for session
+        initialization, warming up caches, loading project context,
+        and pre-fetching relevant memories.
+
+        kwargs may include:
+          - project_path (Path): Current working directory or project root
+          - platform (str): "cli", "telegram", "discord", etc.
+          - cwd (str): The working directory for this session
+          - env (dict): Environment variables snapshot
+        """
+        for provider in self._providers:
+            try:
+                provider.on_session_start(session_id, **kwargs)
+            except Exception as e:
+                logger.debug(
+                    "Memory provider '%s' on_session_start failed: %s",
+                    provider.name, e,
+                )
+
     def on_turn_start(self, turn_number: int, message: str, **kwargs) -> None:
         """Notify all providers of a new turn.
 

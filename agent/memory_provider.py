@@ -141,6 +141,22 @@ class MemoryProvider(ABC):
 
     # -- Optional hooks (override to opt in) ---------------------------------
 
+    def on_session_start(self, session_id: str, **kwargs) -> None:
+        """Called when a new session starts (before the first turn).
+
+        Use for session initialization, warming up caches, loading project context,
+        and pre-fetching relevant memories.
+
+        kwargs may include:
+          - project_path (Path): Current working directory or project root
+          - platform (str): "cli", "telegram", "discord", etc.
+          - cwd (str): The working directory for this session
+          - env (dict): Environment variables snapshot
+
+        NOT called after every turn — only at actual session boundaries
+        (CLI start, gateway session creation).
+        """
+
     def on_turn_start(self, turn_number: int, message: str, **kwargs) -> None:
         """Called at the start of each turn with the user message.
 

@@ -659,6 +659,22 @@ DEFAULT_CONFIG = {
         "working_memory_limit": 5000,      # Working memory token limit
         "archive_memory_enabled": True,    # Archive full transcripts
         "mcp_memory_server": True,         # Enable MCP memory search tools
+        # Session start hooks
+        "on_session_start_preload": True, # Pre-warm memory on session start
+    },
+
+    # Git workflow operations
+    "git": {
+        "workflow_enabled": True,           # Enable git workflow tools
+        "auto_branch_naming": True,        # Auto-generate branch names following conventions
+        "commit_template": "",              # Optional commit message template
+    },
+
+    # Codebase analysis
+    "codebase": {
+        "auto_analyze": True,              # Auto-analyze project structure on session start
+        "analyze_max_depth": 3,            # Max directory depth for analysis
+        "update_claude_md": True,         # Auto-update CLAUDE.md with analysis results
     },
 
     # Subagent delegation — override the provider:model used by delegate_task

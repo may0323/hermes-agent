@@ -8542,6 +8542,21 @@ class AIAgent:
                 except Exception as exc:
                     logger.warning("on_session_start hook failed: %s", exc)
 
+                # Memory provider hook: on_session_start
+                # Notify memory providers of the new session so they can
+                # warm caches and pre-fetch relevant context.
+                if self._memory_manager:
+                    try:
+                        self._memory_manager.on_session_start(
+                            self.session_id,
+                            project_path=getattr(self, "_cwd", None),
+                            platform=getattr(self, "platform", None) or "cli",
+                            cwd=getattr(self, "_cwd", os.getcwd()),
+                            env=dict(os.environ) if hasattr(os, "environ") else {},
+                        )
+                    except Exception as exc:
+                        logger.debug("Memory provider on_session_start failed: %s", exc)
+
                 # Store the system prompt snapshot in SQLite
                 if self._session_db:
                     try:
