@@ -520,3 +520,75 @@ registry.register(
 - 批量操作使用 `batch_analyze_*` 系列工具
 - 并行任务使用 `execute_parallel` 提高效率
 - 长时间运行的任务考虑后台执行
+
+---
+
+## API Relay (中转站/代理) 配置
+
+Hermes Agent 支持配置自定义 API 中转站（Relay/Proxy），用于路由所有 AI Provider 请求。
+
+### 使用场景
+
+1. **网络受限环境** - 无法直接访问某些 AI Provider
+2. **流量监控/日志** - 通过中转站记录所有 AI 请求
+3. **缓存加速** - 中转站提供响应缓存
+4. **API 密钥管理** - 统一管理外部服务的 API 密钥
+
+### 配置方式
+
+#### 方式一：环境变量（推荐）
+
+```bash
+# 启用中转站
+export CUSTOM_RELAY_BASE_URL="https://your-relay-server.com/v1"
+export CUSTOM_RELAY_API_KEY="your-relay-api-key"
+
+# 可选：明确启用
+export CUSTOM_RELAY_ENABLED=1
+```
+
+#### 方式二：config.yaml 配置
+
+```yaml
+relay:
+  enabled: true
+  base_url: "https://your-relay-server.com/v1"
+  api_key: "your-relay-api-key"
+  # 可选：指定使用中转的 Provider（空列表表示所有 Provider）
+  providers: ["openai", "anthropic", "openrouter"]
+```
+
+### 配置项说明
+
+| 配置项 | 环境变量 | 默认值 | 说明 |
+|--------|----------|--------|------|
+| `enabled` | `CUSTOM_RELAY_ENABLED` | `false` | 是否启用中转站 |
+| `base_url` | `CUSTOM_RELAY_BASE_URL` | `""` | 中转站 base URL |
+| `api_key` | `CUSTOM_RELAY_API_KEY` | `""` | 中转站认证密钥 |
+| `providers` | - | `[]` (全部) | 使用中转的 Provider 列表 |
+
+### 工作原理
+
+当启用 Relay 后：
+1. 所有 AI Provider 请求首先路由到 Relay URL
+2. Relay 服务器接收请求后，转发到原始 Provider
+3. 响应通过 Relay 返回给 Hermes
+4. 原始 API Key 仍然传递给 Relay 用于转发认证
+
+### 验证配置
+
+```bash
+# 检查环境变量
+echo $CUSTOM_RELAY_BASE_URL
+echo $CUSTOM_RELAY_API_KEY
+
+# 或通过 hermes doctor 检查配置
+hermes doctor
+```
+
+### 注意事项
+
+1. Relay 必须是 OpenAI 兼容的 API 端点（支持 `/v1/chat/completions`）
+2. 如果使用特定 Provider 的专有格式（如 Anthropic 的 messages API），Relay 需要支持该格式
+3. 环境变量优先级高于 config.yaml 配置
+4. `providers` 为空列表时，所有 Provider 请求都会经过 Relay

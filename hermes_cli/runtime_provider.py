@@ -987,10 +987,110 @@ def resolve_runtime_provider(
         explicit_base_url=explicit_base_url,
     )
     runtime["requested_provider"] = requested_provider
-    return runtime
+    return apply_relay_to_runtime(runtime)
 
 
 def format_runtime_provider_error(error: Exception) -> str:
     if isinstance(error, AuthError):
         return format_auth_error(error)
     return str(error)
+
+
+# =============================================================================
+# Relay/Proxy Configuration
+# =============================================================================
+
+def is_relay_enabled() -> bool:
+    """Check if relay/proxy is enabled via env var or config."""
+    env_enabled = os.getenv("CUSTOM_RELAY_ENABLED", "").strip().lower()
+    if env_enabled in ("1", "true", "yes", "on"):
+        return True
+    try:
+        config = load_config()
+        relay_cfg = config.get("relay", {})
+        return bool(relay_cfg.get("enabled", False))
+    except Exception:
+        return False
+
+
+def get_relay_config() -> Dict[str, Any]:
+    """Get relay configuration from env vars or config.yaml.
+
+    Priority:
+    1. Environment variables (CUSTOM_RELAY_BASE_URL, CUSTOM_RELAY_API_KEY)
+    2. Config file (relay.base_url, relay.api_key, relay.providers, relay.enabled)
+    """
+    env_base_url = os.getenv("CUSTOM_RELAY_BASE_URL", "").strip()
+    env_api_key = os.getenv("CUSTOM_RELAY_API_KEY", "").strip()
+
+    if env_base_url:
+        return {
+            "enabled": True,
+            "base_url": env_base_url.rstrip("/"),
+            "api_key": env_api_key,
+            "providers": [],  # Empty = all providers
+        }
+
+    try:
+        config = load_config()
+        relay_cfg = config.get("relay", {})
+        if relay_cfg.get("enabled") or relay_cfg.get("base_url"):
+            return {
+                "enabled": bool(relay_cfg.get("enabled", False)),
+                "base_url": str(relay_cfg.get("base_url", "")).strip().rstrip("/"),
+                "api_key": str(relay_cfg.get("api_key", "")).strip(),
+                "providers": relay_cfg.get("providers", []),
+            }
+    except Exception:
+        pass
+
+    return {"enabled": False, "base_url": "", "api_key": "", "providers": []}
+
+
+def should_use_relay_for_provider(provider: str) -> bool:
+    """Check if relay should be used for a specific provider.
+
+    Returns True if:
+    - Relay is enabled
+    - Provider list is empty (relay for all) or provider is in the list
+    """
+    if not is_relay_enabled():
+        return False
+    relay_cfg = get_relay_config()
+    providers = relay_cfg.get("providers", [])
+    # Empty list means relay for all providers
+    if not providers:
+        return True
+    return provider.lower() in [p.lower() for p in providers]
+
+
+def apply_relay_to_runtime(runtime: Dict[str, Any]) -> Dict[str, Any]:
+    """Apply relay configuration to a resolved runtime dict.
+
+    If relay is enabled for this provider, modifies the base_url to use
+    the relay URL and keeps the original api_key (the relay will forward
+    the request with this key).
+    """
+    if not is_relay_enabled():
+        return runtime
+
+    provider = runtime.get("provider", "")
+    if not should_use_relay_for_provider(provider):
+        return runtime
+
+    relay_cfg = get_relay_config()
+    relay_url = relay_cfg.get("base_url", "").strip()
+    if not relay_url:
+        return runtime
+
+    original_base_url = runtime.get("base_url", "")
+    runtime = dict(runtime)
+    runtime["relay"] = {
+        "original_base_url": original_base_url,
+        "relay_base_url": relay_url,
+    }
+    runtime["base_url"] = relay_url
+    if relay_cfg.get("api_key"):
+        runtime["relay_api_key"] = relay_cfg["api_key"]
+    return runtime
+

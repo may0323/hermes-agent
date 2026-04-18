@@ -778,8 +778,23 @@ DEFAULT_CONFIG = {
         "force_ipv4": False,
     },
 
+    # API Relay/Proxy settings — use a relay server for all AI provider requests.
+    # Useful when running in environments with limited internet access, or when
+    # you want to route all traffic through your own proxy/gateway.
+    "relay": {
+        # Enable/disable the relay (default: false)
+        "enabled": False,
+        # Base URL of the relay server (e.g. "https://your-relay-server.com/v1")
+        "base_url": "",
+        # API key for the relay server authentication
+        "api_key": "",
+        # Optional: list of provider names to use relay for (empty = all providers)
+        # Example: ["openai", "anthropic", "openrouter"]
+        "providers": [],
+    },
+
     # Config schema version - bump this when adding new required fields
-    "_config_version": 18,
+    "_config_version": 19,
 }
 
 # =============================================================================
@@ -795,6 +810,7 @@ ENV_VARS_BY_VERSION: Dict[int, List[str]] = {
         "SLACK_BOT_TOKEN", "SLACK_APP_TOKEN", "SLACK_ALLOWED_USERS"],
     10: ["TAVILY_API_KEY"],
     11: ["TERMINAL_MODAL_MODE"],
+    19: ["CUSTOM_RELAY_BASE_URL", "CUSTOM_RELAY_API_KEY"],
 }
 
 # Required environment variables with metadata for migration prompts.
@@ -1136,6 +1152,24 @@ OPTIONAL_ENV_VARS = {
         "url": None,
         "password": False,
         "category": "provider",
+        "advanced": True,
+    },
+
+    # ── Relay/Proxy settings ──
+    "CUSTOM_RELAY_BASE_URL": {
+        "description": "Custom API relay/proxy base URL (all AI provider requests route through this relay)",
+        "prompt": "Custom relay base URL (e.g. https://your-relay-server.com/v1)",
+        "url": None,
+        "password": False,
+        "category": "relay",
+        "advanced": True,
+    },
+    "CUSTOM_RELAY_API_KEY": {
+        "description": "API key for custom relay authentication",
+        "prompt": "Custom relay API key",
+        "url": None,
+        "password": True,
+        "category": "relay",
         "advanced": True,
     },
 

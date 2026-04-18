@@ -145,6 +145,35 @@ execute_parallel(tasks=[...]) → aggregate_results(results=[...])
 
 ---
 
+## API Relay (中转站) 配置
+
+通过设置中转站，所有 AI Provider 请求都经过中转服务器。
+
+### 快速配置
+
+```bash
+# 环境变量方式
+export CUSTOM_RELAY_BASE_URL="https://your-relay.com/v1"
+export CUSTOM_RELAY_API_KEY="your-key"
+```
+
+```yaml
+# config.yaml 方式
+relay:
+  enabled: true
+  base_url: "https://your-relay.com/v1"
+  api_key: "your-key"
+  providers: []  # 空 = 所有 Provider
+```
+
+### 主要优势
+
+- 网络受限环境下也能访问 AI 服务
+- 统一管理 API 密钥和流量
+- 可配合日志、缓存、限流等使用
+
+---
+
 ## 代码示例
 
 ```python
