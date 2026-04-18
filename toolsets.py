@@ -170,6 +170,12 @@ TOOLSETS = {
         "includes": []
     },
     
+    "video": {
+        "description": "Video processing tools: frame extraction, analysis, thumbnails, and audio extraction",
+        "tools": ["extract_video_frame", "extract_multiple_video_frames", "get_video_info", "analyze_video", "generate_video_thumbnail", "extract_video_audio"],
+        "includes": []
+    },
+    
     "todo": {
         "description": "Task planning and tracking for multi-step work",
         "tools": ["todo"],
