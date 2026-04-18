@@ -158,12 +158,15 @@ TOOLSETS = {
         "includes": []
     },
     
+<<<<<<< HEAD
     "document": {
         "description": "Document processing tools: parse and extract content from PDF, Word, Excel, and CSV files",
         "tools": ["parse_pdf", "get_pdf_info", "parse_docx", "get_docx_info", "parse_spreadsheet", "get_spreadsheet_info"],
         "includes": []
     },
     
+=======
+>>>>>>> refs/heads/quede-feat-voice-tools
     "image": {
         "description": "Image processing tools: OCR, batch analysis, comparison, and similarity search",
         "tools": ["ocr_image", "ocr_pdf", "get_ocr_languages", "batch_analyze_images", "batch_analyze_directory", "compare_images", "find_similar_images"],
@@ -173,6 +176,12 @@ TOOLSETS = {
     "video": {
         "description": "Video processing tools: frame extraction, analysis, thumbnails, and audio extraction",
         "tools": ["extract_video_frame", "extract_multiple_video_frames", "get_video_info", "analyze_video", "generate_video_thumbnail", "extract_video_audio"],
+        "includes": []
+    },
+    
+    "voice": {
+        "description": "Voice/audio processing tools: format conversion, trimming, volume adjustment",
+        "tools": ["get_audio_info", "convert_audio", "trim_audio", "adjust_audio_volume"],
         "includes": []
     },
     
