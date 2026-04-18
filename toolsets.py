@@ -220,6 +220,12 @@ TOOLSETS = {
         "tools": ["delegate_task", "execute_parallel", "aggregate_results"],
         "includes": []
     },
+    
+    "mcp": {
+        "description": "MCP (Model Context Protocol) tools: transport layer, connection management, and health monitoring for MCP servers",
+        "tools": ["mcp_transport", "mcp_connection", "mcp_health"],
+        "includes": []
+    },
 
     # "honcho" toolset removed — Honcho is now a memory provider plugin.
     # Tools are injected via MemoryManager, not the toolset system.
