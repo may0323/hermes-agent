@@ -143,12 +143,31 @@ def parse_pdf_tool(
         
         pages_to_read = min(max_pages, num_pages) if max_pages else num_pages
         
-        text_parts = []
-        for i in range(pages_to_read):
-            page = reader.pages[i]
-            text = page.extract_text()
-            if text:
-                text_parts.append(f"--- Page {i+1} ---\n{text}")
+        PARALLEL_PAGE_THRESHOLD = 10
+        if pages_to_read >= PARALLEL_PAGE_THRESHOLD:
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+            
+            def extract_page(i):
+                page = reader.pages[i]
+                text = page.extract_text()
+                return (i, text)
+            
+            text_parts = []
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                futures = [executor.submit(extract_page, i) for i in range(pages_to_read)]
+                for future in as_completed(futures):
+                    idx, text = future.result()
+                    if text:
+                        text_parts.append(f"--- Page {idx+1} ---\n{text}")
+            
+            text_parts.sort(key=lambda x: int(x.split("--- Page ")[1].split(" ")[0]) - 1)
+        else:
+            text_parts = []
+            for i in range(pages_to_read):
+                page = reader.pages[i]
+                text = page.extract_text()
+                if text:
+                    text_parts.append(f"--- Page {i+1} ---\n{text}")
         
         result_data["content"] = "\n\n".join(text_parts)
         result_data["metadata"]["pages_read"] = pages_to_read
