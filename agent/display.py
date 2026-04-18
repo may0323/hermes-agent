@@ -795,6 +795,116 @@ class KawaiiSpinner:
         return False
 
 
+class ProgressSpinner(KawaiiSpinner):
+    """Enhanced KawaiiSpinner with progress percentage display.
+    
+    Displays a progress bar alongside the spinner animation.
+    Codex-inspired: quiet, elegant, informative.
+    """
+
+    PROGRESS_BAR_WIDTH = 20  # Number of blocks in the progress bar
+
+    def __init__(
+        self,
+        message: str = "",
+        spinner_type: str = 'dots',
+        print_fn=None,
+        show_progress_bar: bool = True,
+        show_eta: bool = True,
+    ):
+        super().__init__(message, spinner_type, print_fn)
+        self.show_progress_bar = show_progress_bar
+        self.show_eta = show_eta
+        self._progress: float = 0.0
+        self._total_steps: int = 10
+        self._current_step: int = 0
+        self._estimated_total_time: Optional[float] = None
+
+    def set_progress(self, current: int, total: int, estimated_time: Optional[float] = None) -> None:
+        """Set progress values.
+        
+        Args:
+            current: Current step number (0-based)
+            total: Total number of steps
+            estimated_time: Optional estimated total time in seconds
+        """
+        self._current_step = current
+        self._total_steps = total
+        self._progress = (current / total * 100) if total > 0 else 0
+        if estimated_time is not None:
+            self._estimated_total_time = estimated_time
+
+    def _format_progress_bar(self) -> str:
+        """Format a text-based progress bar."""
+        filled = int(self.PROGRESS_BAR_WIDTH * self._progress / 100)
+        empty = self.PROGRESS_BAR_WIDTH - filled
+        bar = "[" + "█" * filled + "░" * empty + "]"
+        return f"{bar} {self._progress:.0f}%"
+
+    def _estimate_remaining_time(self) -> Optional[str]:
+        """Estimate remaining time based on current progress."""
+        if self._estimated_total_time is None or self._progress == 0:
+            return None
+        elapsed = time.time() - self.start_time
+        if self._progress >= 5:  # Need at least 5% to estimate
+            rate = self._progress / elapsed  # % per second
+            remaining_percent = 100 - self._progress
+            eta_seconds = remaining_percent / rate if rate > 0 else 0
+            if eta_seconds < 60:
+                return f"ETA {eta_seconds:.0f}s"
+            elif eta_seconds < 3600:
+                return f"ETA {eta_seconds/60:.1f}m"
+            else:
+                return f"ETA {eta_seconds/3600:.1f}h"
+        return None
+
+    def _animate(self):
+        """Override animation to include progress bar."""
+        if not self._is_tty:
+            self._write(f"  [progress] {self.message}", flush=True)
+            while self.running:
+                time.sleep(0.5)
+            return
+
+        if self._is_patch_stdout_proxy():
+            while self.running:
+                time.sleep(0.1)
+            return
+
+        skin = _get_skin()
+        wings = skin.get_spinner_wings() if skin else []
+
+        while self.running:
+            frame = self.spinner_frames[self.frame_idx % len(self.spinner_frames)]
+            elapsed = time.time() - self.start_time
+
+            parts = [f"{frame} {self.message}"]
+
+            # Add progress bar if enabled
+            if self.show_progress_bar and self._total_steps > 1:
+                parts.append(self._format_progress_bar())
+
+            # Add ETA if available
+            if self.show_eta:
+                eta = self._estimate_remaining_time()
+                if eta:
+                    parts.append(eta)
+
+            parts.append(f"({elapsed:.1f}s)")
+
+            if wings:
+                left, right = wings[self.frame_idx % len(wings)]
+                line = f"  {left} {' '.join(parts)} {right}"
+            else:
+                line = "  " + " ".join(parts)
+
+            pad = max(self.last_line_len - len(line), 0)
+            self._write(f"\r{line}{' ' * pad}", end='', flush=True)
+            self.last_line_len = len(line)
+            self.frame_idx += 1
+            time.sleep(0.12)
+
+
 # =========================================================================
 # Cute tool message (completion line that replaces the spinner)
 # =========================================================================
