@@ -164,6 +164,12 @@ TOOLSETS = {
         "includes": []
     },
     
+    "image": {
+        "description": "Image processing tools: OCR, batch analysis, comparison, and similarity search",
+        "tools": ["ocr_image", "ocr_pdf", "get_ocr_languages", "batch_analyze_images", "batch_analyze_directory", "compare_images", "find_similar_images"],
+        "includes": []
+    },
+    
     "todo": {
         "description": "Task planning and tracking for multi-step work",
         "tools": ["todo"],
