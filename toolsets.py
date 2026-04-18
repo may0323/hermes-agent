@@ -160,7 +160,7 @@ TOOLSETS = {
     
     "document": {
         "description": "Document processing tools: parse and extract content from PDF, Word, Excel, and CSV files",
-        "tools": ["parse_pdf", "get_pdf_info"],
+        "tools": ["parse_pdf", "get_pdf_info", "parse_docx", "get_docx_info", "parse_spreadsheet", "get_spreadsheet_info"],
         "includes": []
     },
     
