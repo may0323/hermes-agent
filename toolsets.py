@@ -215,7 +215,7 @@ TOOLSETS = {
         "includes": []
     },
     
-    "delegation": {
+    "subagents": {
         "description": "Spawn subagents with isolated context for complex subtasks",
         "tools": ["delegate_task", "execute_parallel", "aggregate_results"],
         "includes": []
