@@ -105,7 +105,7 @@ TOOLSETS = {
     
     "skills": {
         "description": "Access, create, edit, and manage skill documents with specialized instructions and knowledge",
-        "tools": ["skills_list", "skill_view", "skill_manage"],
+        "tools": ["skills_list", "skill_view", "skill_manage", "list_skills", "search_skills", "get_skill_details", "check_skill_compatibility"],
         "includes": []
     },
     
@@ -153,6 +153,12 @@ TOOLSETS = {
     "tts": {
         "description": "Text-to-speech: convert text to audio with Edge TTS (free), ElevenLabs, OpenAI, or xAI",
         "tools": ["text_to_speech"],
+        "includes": []
+    },
+    
+    "mcp": {
+        "description": "MCP (Model Context Protocol) tools: transport layer, connection management, and health monitoring for MCP servers",
+        "tools": ["mcp_transport", "mcp_connection", "mcp_health"],
         "includes": []
     },
     
