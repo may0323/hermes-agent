@@ -653,6 +653,12 @@ DEFAULT_CONFIG = {
         # "hindsight", "holographic", "retaindb", "byterover".
         # Only ONE external provider is allowed at a time.
         "provider": "",
+        # Claude Memory System - AI-powered memory with compression
+        "auto_claude_md": True,           # Auto-update CLAUDE.md with session learning
+        "compression_enabled": True,       # AI compression of observations
+        "working_memory_limit": 5000,      # Working memory token limit
+        "archive_memory_enabled": True,    # Archive full transcripts
+        "mcp_memory_server": True,         # Enable MCP memory search tools
     },
 
     # Subagent delegation — override the provider:model used by delegate_task

@@ -192,8 +192,11 @@ TOOLSETS = {
     },
     
     "memory": {
-        "description": "Persistent memory across sessions (personal notes + user profile)",
-        "tools": ["memory", "auto_summarize", "extract_entities", "detect_patterns", "memory_search"],
+        "description": "Persistent memory across sessions (personal notes + user profile + CLAUDE.md)",
+        "tools": [
+            "memory", "auto_summarize", "extract_entities", "detect_patterns",
+            "memory_search", "memory_timeline", "memory_get", "memory_stats",
+        ],
         "includes": []
     },
     
