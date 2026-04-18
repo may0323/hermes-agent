@@ -46,6 +46,8 @@ _HERMES_CORE_TOOLS = [
     "browser_vision", "browser_console",
     # Text-to-speech
     "text_to_speech",
+    # Document processing
+    "parse_pdf", "get_pdf_info",
     # Planning & memory
     "todo", "memory",
     # Session history search
@@ -153,6 +155,12 @@ TOOLSETS = {
     "tts": {
         "description": "Text-to-speech: convert text to audio with Edge TTS (free), ElevenLabs, OpenAI, or xAI",
         "tools": ["text_to_speech"],
+        "includes": []
+    },
+    
+    "document": {
+        "description": "Document processing tools: parse and extract content from PDF, Word, Excel, and CSV files",
+        "tools": ["parse_pdf", "get_pdf_info", "parse_docx", "get_docx_info", "parse_spreadsheet", "get_spreadsheet_info"],
         "includes": []
     },
     
