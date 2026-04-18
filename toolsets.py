@@ -156,6 +156,18 @@ TOOLSETS = {
         "includes": []
     },
     
+    "image": {
+        "description": "Image processing tools: OCR, batch analysis, comparison, and similarity search",
+        "tools": ["ocr_image", "ocr_pdf", "get_ocr_languages", "batch_analyze_images", "batch_analyze_directory", "compare_images", "find_similar_images"],
+        "includes": []
+    },
+    
+    "video": {
+        "description": "Video processing tools: frame extraction, analysis, thumbnails, and audio extraction",
+        "tools": ["extract_video_frame", "extract_multiple_video_frames", "get_video_info", "analyze_video", "generate_video_thumbnail", "extract_video_audio"],
+        "includes": []
+    },
+    
     "todo": {
         "description": "Task planning and tracking for multi-step work",
         "tools": ["todo"],
